@@ -112,45 +112,6 @@ const std::string lgf[lgfn] = {
   "5 2  6      539\n",
 };
 
-void checkMaxMatchingCompile()
-{
-  typedef concepts::Graph Graph;
-  typedef Graph::Node Node;
-  typedef Graph::Edge Edge;
-  typedef Graph::EdgeMap<bool> MatMap;
-
-  Graph g;
-  Node n;
-  Edge e;
-  MatMap mat(g);
-
-  MaxMatching<Graph> mat_test(g);
-  const MaxMatching<Graph>&
-    const_mat_test = mat_test;
-
-  mat_test.init();
-  mat_test.greedyInit();
-  mat_test.matchingInit(mat);
-  mat_test.startSparse();
-  mat_test.startDense();
-  mat_test.run();
-
-  const_mat_test.matchingSize();
-  const_mat_test.matching(e);
-  const_mat_test.matching(n);
-  const MaxMatching<Graph>::MatchingMap& mmap =
-    const_mat_test.matchingMap();
-  e = mmap[n];
-  const_mat_test.mate(n);
-
-  MaxMatching<Graph>::Status stat =
-    const_mat_test.status(n);
-  ::lemon::ignore_unused_variable_warning(stat);
-  const MaxMatching<Graph>::StatusMap& smap =
-    const_mat_test.statusMap();
-  stat = smap[n];
-  const_mat_test.barrier(n);
-}
 
 void checkMaxWeightedPerfectMatchingCompile()
 {
@@ -187,66 +148,6 @@ void checkMaxWeightedPerfectMatchingCompile()
   const_mat_test.blossomSize(k);
   const_mat_test.blossomValue(k);
 }
-
-void checkMatching(const SmartGraph& graph,
-                   const MaxMatching<SmartGraph>& mm) {
-  int num = 0;
-
-  IntNodeMap comp_index(graph);
-  UnionFind<IntNodeMap> comp(comp_index);
-
-  int barrier_num = 0;
-
-  for (NodeIt n(graph); n != INVALID; ++n) {
-    check(mm.status(n) == MaxMatching<SmartGraph>::EVEN ||
-          mm.matching(n) != INVALID, "Wrong Gallai-Edmonds decomposition");
-    if (mm.status(n) == MaxMatching<SmartGraph>::ODD) {
-      ++barrier_num;
-    } else {
-      comp.insert(n);
-    }
-  }
-
-  for (EdgeIt e(graph); e != INVALID; ++e) {
-    if (mm.matching(e)) {
-      check(e == mm.matching(graph.u(e)), "Wrong matching");
-      check(e == mm.matching(graph.v(e)), "Wrong matching");
-      ++num;
-    }
-    check(mm.status(graph.u(e)) != MaxMatching<SmartGraph>::EVEN ||
-          mm.status(graph.v(e)) != MaxMatching<SmartGraph>::MATCHED,
-          "Wrong Gallai-Edmonds decomposition");
-
-    check(mm.status(graph.v(e)) != MaxMatching<SmartGraph>::EVEN ||
-          mm.status(graph.u(e)) != MaxMatching<SmartGraph>::MATCHED,
-          "Wrong Gallai-Edmonds decomposition");
-
-    if (mm.status(graph.u(e)) != MaxMatching<SmartGraph>::ODD &&
-        mm.status(graph.v(e)) != MaxMatching<SmartGraph>::ODD) {
-      comp.join(graph.u(e), graph.v(e));
-    }
-  }
-
-  std::set<int> comp_root;
-  int odd_comp_num = 0;
-  for (NodeIt n(graph); n != INVALID; ++n) {
-    if (mm.status(n) != MaxMatching<SmartGraph>::ODD) {
-      int root = comp.find(n);
-      if (comp_root.find(root) == comp_root.end()) {
-        comp_root.insert(root);
-        if (comp.size(n) % 2 == 1) {
-          ++odd_comp_num;
-        }
-      }
-    }
-  }
-
-  check(mm.matchingSize() == num, "Wrong matching");
-  check(2 * num == countNodes(graph) - (odd_comp_num - barrier_num),
-         "Wrong matching");
-  return;
-}
-
 
 void checkWeightedPerfectMatching(const SmartGraph& graph,
                           const SmartGraph::EdgeMap<int>& weight,
@@ -317,22 +218,7 @@ int main() {
     graphReader(graph, lgfs).
       edgeMap("weight", weight).run();
 
-    bool perfect;
-    {
-      MaxMatching<SmartGraph> mm(graph);
-      mm.run();
-      checkMatching(graph, mm);
-      perfect = 2 * mm.matchingSize() == countNodes(graph);
-    }
-
-
-
-    {
-      //MaxWeightedMatching<SmartGraph> mwm(graph, weight);
-      //mwm.init();
-      //mwm.start();
-      //checkWeightedMatching(graph, weight, mwm);
-    }
+    bool perfect = true;
 
     {
       MaxWeightedPerfectMatching<SmartGraph> mwpm(graph, weight);

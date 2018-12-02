@@ -134,25 +134,6 @@ void solve_min(ArgParser &ap, std::istream &is, std::ostream &,
   }
 }
 
-void solve_mat(ArgParser &ap, std::istream &is, std::ostream &,
-              DimacsDescriptor &desc)
-{
-  bool report = !ap.given("q");
-  Graph g;
-  Timer ti;
-  ti.restart();
-  readDimacsMat(is, g, desc);
-  if(report) std::cerr << "Read the file: " << ti << '\n';
-  ti.restart();
-  MaxMatching<Graph> mat(g);
-  if(report) std::cerr << "Setup MaxMatching class: " << ti << '\n';
-  ti.restart();
-  mat.run();
-  if(report) std::cerr << "Run MaxMatching: " << ti << '\n';
-  if(report) std::cerr << "\nCardinality of max matching: "
-                       << mat.matchingSize() << '\n';
-}
-
 
 template<class Value, class LargeValue>
 void solve(ArgParser &ap, std::istream &is, std::ostream &os,
@@ -179,9 +160,6 @@ void solve(ArgParser &ap, std::istream &is, std::ostream &os,
       break;
     case DimacsDescriptor::SP:
       solve_sp<Value>(ap,is,os,desc);
-      break;
-    case DimacsDescriptor::MAT:
-      solve_mat(ap,is,os,desc);
       break;
     default:
       break;
