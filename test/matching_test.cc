@@ -152,43 +152,6 @@ void checkMaxMatchingCompile()
   const_mat_test.barrier(n);
 }
 
-void checkMaxWeightedMatchingCompile()
-{
-  typedef concepts::Graph Graph;
-  typedef Graph::Node Node;
-  typedef Graph::Edge Edge;
-  typedef Graph::EdgeMap<int> WeightMap;
-
-  Graph g;
-  Node n;
-  Edge e;
-  WeightMap w(g);
-
-  MaxWeightedMatching<Graph> mat_test(g, w);
-  const MaxWeightedMatching<Graph>&
-    const_mat_test = mat_test;
-
-  mat_test.init();
-  mat_test.start();
-  mat_test.run();
-
-  const_mat_test.matchingWeight();
-  const_mat_test.matchingSize();
-  const_mat_test.matching(e);
-  const_mat_test.matching(n);
-  const MaxWeightedMatching<Graph>::MatchingMap& mmap =
-    const_mat_test.matchingMap();
-  e = mmap[n];
-  const_mat_test.mate(n);
-
-  int k = 0;
-  const_mat_test.dualValue();
-  const_mat_test.nodeValue(n);
-  const_mat_test.blossomNum();
-  const_mat_test.blossomSize(k);
-  const_mat_test.blossomValue(k);
-}
-
 void checkMaxWeightedPerfectMatchingCompile()
 {
   typedef concepts::Graph Graph;
@@ -284,67 +247,6 @@ void checkMatching(const SmartGraph& graph,
   return;
 }
 
-void checkWeightedMatching(const SmartGraph& graph,
-                   const SmartGraph::EdgeMap<int>& weight,
-                   const MaxWeightedMatching<SmartGraph>& mwm) {
-  for (SmartGraph::EdgeIt e(graph); e != INVALID; ++e) {
-    if (graph.u(e) == graph.v(e)) continue;
-    int reducedWeight = mwm.nodeValue(graph.u(e)) + mwm.nodeValue(graph.v(e));
-    if (mwm.matching(e)) {
-      std::cerr << "IN MATCHING ";
-    }
-    std::cerr << "edge weight: " << weight[e] << " reduced: " << reducedWeight;
-    for (int i = 0; i < mwm.blossomNum(); ++i) {
-      bool s = false, t = false;
-      for (MaxWeightedMatching<SmartGraph>::BlossomIt n(mwm, i);
-           n != INVALID; ++n) {
-        if (graph.u(e) == n) s = true;
-        if (graph.v(e) == n) t = true;
-      }
-      if (s == true && t == true) {
-        int blossomValue = mwm.blossomValue(i);
-        std::cerr << "  blossom value " << blossomValue
-          << std::endl;
-        reducedWeight += blossomValue;
-      }
-    }
-    reducedWeight -= weight[e] * mwm.dualScale;
-    std::cerr << "  final: " << reducedWeight << std::endl;
-    check(reducedWeight >= 0, "Negative reduced weight");
-    check(reducedWeight == 0 || !mwm.matching(e),
-          "Non-zero reduced weight on matching edge");
-  }
-
-  int pv = 0;
-  for (SmartGraph::NodeIt n(graph); n != INVALID; ++n) {
-    if (mwm.matching(n) != INVALID) {
-      check(mwm.nodeValue(n) >= 0, "Invalid node value");
-      pv += weight[mwm.matching(n)];
-      SmartGraph::Node o = graph.target(mwm.matching(n));
-      check(mwm.mate(n) == o, "Invalid matching");
-      check(mwm.matching(n) == graph.oppositeArc(mwm.matching(o)),
-            "Invalid matching");
-    } else {
-      check(mwm.mate(n) == INVALID, "Invalid matching");
-      check(mwm.nodeValue(n) == 0, "Invalid matching");
-    }
-  }
-
-  int dv = 0;
-  for (SmartGraph::NodeIt n(graph); n != INVALID; ++n) {
-    dv += mwm.nodeValue(n);
-  }
-
-  for (int i = 0; i < mwm.blossomNum(); ++i) {
-    check(mwm.blossomValue(i) >= 0, "Invalid blossom value");
-    check(mwm.blossomSize(i) % 2 == 1, "Even blossom size");
-    dv += mwm.blossomValue(i) * ((mwm.blossomSize(i) - 1) / 2);
-  }
-
-  check(pv * mwm.dualScale == dv * 2, "Wrong duality");
-
-  return;
-}
 
 void checkWeightedPerfectMatching(const SmartGraph& graph,
                           const SmartGraph::EdgeMap<int>& weight,
@@ -423,11 +325,7 @@ int main() {
       perfect = 2 * mm.matchingSize() == countNodes(graph);
     }
 
-    {
-      MaxWeightedMatching<SmartGraph> mwm(graph, weight);
-      mwm.run();
-      checkWeightedMatching(graph, weight, mwm);
-    }
+
 
     {
       //MaxWeightedMatching<SmartGraph> mwm(graph, weight);
