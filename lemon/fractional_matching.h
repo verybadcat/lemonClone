@@ -757,6 +757,7 @@ namespace lemon {
       }
       if (!_tree_set) {
         _tree_set_index = new IntNodeMap(_graph);
+        _tree_set_index = new IntNodeMap(_graph);
         _tree_set = new TreeSet(*_tree_set_index);
       }
       if (!_delta1) {
@@ -942,11 +943,14 @@ namespace lemon {
     }
 
     void destroyTree(int tree) {
+      std::cerr << "destroying tree " << tree << std::endl;
       for (typename TreeSet::ItemIt n(*_tree_set, tree); n != INVALID; ++n) {
         if ((*_status)[n] == EVEN) {
+          std::cerr << "  even" << std::endl;
           _status->set(n, MATCHED);
           evenToMatched(n, tree);
         } else if ((*_status)[n] == ODD) {
+          std::cerr << "  odd" << std::endl;
           _status->set(n, MATCHED);
           oddToMatched(n);
         }
@@ -956,6 +960,7 @@ namespace lemon {
 
 
     void unmatchNode(const Node& node) {
+      std::cerr << "unmatchNode ";
       int tree = _tree_set->find(node);
 
       alternatePath(node, tree);
@@ -966,6 +971,9 @@ namespace lemon {
 
 
     void augmentOnEdge(const Edge& edge) {
+      int weight = _weight[edge];
+      std::cerr << "augmentOnEdge " << weight << std::endl;
+
       Node left = _graph.u(edge);
       int left_tree = _tree_set->find(left);
 
@@ -1013,6 +1021,8 @@ namespace lemon {
 
     void cycleOnEdge(const Edge& edge, int tree) {
       Node nca = INVALID;
+      int weight = _weight[edge];
+      std::cerr << "cyle on edge with weight " << weight << std::endl;
       std::vector<Node> left_path, right_path;
 
       {
@@ -1025,6 +1035,7 @@ namespace lemon {
         right_path.push_back(right);
         right_set.insert(right);
 
+   
         while (true) {
 
           if (left_set.find(right) != left_set.end()) {
@@ -1174,12 +1185,16 @@ namespace lemon {
       for (NodeIt n(_graph); n != INVALID; ++n) {
         Value max = 0;
         for (OutArcIt e(_graph, n); e != INVALID; ++e) {
+          int weight = _weight[e];
+          std::cerr << weight << std::endl;
           if (_graph.target(e) == n && !_allow_loops) continue;
           if ((dualScale * _weight[e]) / 2 > max) {
             max = (dualScale * _weight[e]) / 2;
           }
         }
+        // max is the weight of the max. edge from the node, multiplied by a constant (2 or 1/2).
         _node_potential->set(n, max);
+        std::cerr << "node potential " << max << std::endl;
         _delta1->push(n, max);
 
         _tree_set->insert(n);
@@ -1188,13 +1203,17 @@ namespace lemon {
         _status->set(n, EVEN);
       }
 
+      std::cerr << "edges done"<< std::endl;
+
       for (EdgeIt e(_graph); e != INVALID; ++e) {
         Node left = _graph.u(e);
         Node right = _graph.v(e);
         if (left == right && !_allow_loops) continue;
-        _delta3->push(e, ((*_node_potential)[left] +
+        int potential = ((*_node_potential)[left] +
                           (*_node_potential)[right] -
-                          dualScale * _weight[e]) / 2);
+                          dualScale * _weight[e]) / 2;
+        cerr << "potential for edge with weight " << _weight[e] << " is " << potential << std::endl;
+        _delta3->push(e, potential);
       }
     }
 
@@ -1901,6 +1920,7 @@ namespace lemon {
     ///
     /// This function initializes the algorithm.
     void init() {
+      std::cerr << "MaxWeightedPerfectFractionalMatching init" << std::endl;
       createStructures();
 
       for (NodeIt n(_graph); n != INVALID; ++n) {
