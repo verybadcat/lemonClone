@@ -381,8 +381,6 @@ int main() {
   digraph_copy_test<StaticDigraph>();
   graph_copy_test<SmartGraph>();
   graph_copy_test<ListGraph>();
-  bpgraph_copy_test<SmartBpGraph>();
-  bpgraph_copy_test<ListBpGraph>();
 
   return 0;
 }
