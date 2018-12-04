@@ -1286,7 +1286,9 @@ namespace lemon {
     /// structure uses internally for store references.
     HeapUnionFind(ItemIntMap& _index)
       : index(_index), first_class(-1),
-        first_free_class(-1), first_free_node(-1) {}
+        first_free_class(-1), first_free_node(-1) {
+      std::cerr << "HeapUnionFind" << std::endl;
+    }
 
     /// \brief Clears the union-find data structure
     ///
@@ -1304,7 +1306,9 @@ namespace lemon {
     /// \param prio The priority of the new node.
     /// \return The class id of the one-item-heap.
     int insert(const Item& item, const Value& prio) {
+
       int id = newNode();
+      std::cerr << "  insert " << id << " " << prio << std::endl;
       nodes[id].item = item;
       nodes[id].prio = prio;
       nodes[id].size = 0;

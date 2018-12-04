@@ -16,17 +16,25 @@
  *
  */
 
-#include <lemon/concepts/bpgraph.h>
-#include <lemon/list_graph.h>
-#include <lemon/smart_graph.h>
-#include <lemon/full_graph.h>
+#include <lemon/unionfind.h>
 
 #include "test_tools.h"
-#include "graph_test.h"
+#include "lemon/maps.h"
 
 using namespace lemon;
-using namespace lemon::concepts;
+using namespace std;
 
 int main() {
-  return 0;
+
+  typedef RangeMap<string> RangeMap;
+  typedef HeapUnionFind<int, RangeMap> HeapUnionFind;
+
+  RangeMap map = RangeMap(4);
+  map[0] = "zero";
+  map[1] = "one";
+  map[2] = "two";
+  map[3] = "three";
+
+  
+  std::cerr << "done" << std::endl;
 }
