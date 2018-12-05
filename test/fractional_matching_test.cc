@@ -120,73 +120,6 @@ const std::string lgf[lgfn] = {
 };
 
 
-void checkWeightedFractionalMatching(const SmartGraph& graph,
-                   const SmartGraph::EdgeMap<int>& weight,
-                   const MaxWeightedFractionalMatching<SmartGraph>& mwfm,
-                   bool allow_loops = true) {
-  for (SmartGraph::EdgeIt e(graph); e != INVALID; ++e) {
-    if (graph.u(e) == graph.v(e) && !allow_loops) continue;
-    int rw = mwfm.nodeValue(graph.u(e)) + mwfm.nodeValue(graph.v(e))
-      - weight[e] * mwfm.dualScale;
-
-    check(rw >= 0, "Negative reduced weight");
-    check(rw == 0 || !mwfm.matching(e),
-          "Non-zero reduced weight on matching edge");
-  }
-
-  int pv = 0;
-  for (SmartGraph::NodeIt n(graph); n != INVALID; ++n) {
-    int indeg = 0;
-    for (InArcIt a(graph, n); a != INVALID; ++a) {
-      if (mwfm.matching(graph.source(a)) == a) {
-        ++indeg;
-      }
-    }
-    check(indeg <= 1, "Invalid matching");
-    if (mwfm.matching(n) != INVALID) {
-      check(mwfm.nodeValue(n) >= 0, "Invalid node value");
-      check(indeg == 1, "Invalid matching");
-      pv += weight[mwfm.matching(n)];
-      SmartGraph::Node o = graph.target(mwfm.matching(n));
-      ::lemon::ignore_unused_variable_warning(o);
-    } else {
-      check(mwfm.nodeValue(n) == 0, "Invalid matching");
-      check(indeg == 0, "Invalid matching");
-    }
-  }
-
-  for (SmartGraph::EdgeIt e(graph); e != INVALID; ++e) {
-    check((e == mwfm.matching(graph.u(e)) ? 1 : 0) +
-          (e == mwfm.matching(graph.v(e)) ? 1 : 0) ==
-          mwfm.matching(e), "Invalid matching");
-  }
-
-  int dv = 0;
-  for (SmartGraph::NodeIt n(graph); n != INVALID; ++n) {
-    dv += mwfm.nodeValue(n);
-  }
-
-  check(pv * mwfm.dualScale == dv * 2, "Wrong duality");
-
-  SmartGraph::NodeMap<bool> processed(graph, false);
-  for (SmartGraph::NodeIt n(graph); n != INVALID; ++n) {
-    if (processed[n]) continue;
-    processed[n] = true;
-    if (mwfm.matching(n) == INVALID) continue;
-    int num = 1;
-    Node v = graph.target(mwfm.matching(n));
-    while (v != n) {
-      processed[v] = true;
-      ++num;
-      v = graph.target(mwfm.matching(v));
-    }
-    check(num == 2 || num % 2 == 1, "Wrong cycle size");
-    check(allow_loops || num != 1, "Wrong cycle size");
-  }
-
-  return;
-}
-
 void checkWeightedPerfectFractionalMatching(const SmartGraph& graph,
                 const SmartGraph::EdgeMap<int>& weight,
                 const MaxWeightedPerfectFractionalMatching<SmartGraph>& mwpfm,
@@ -258,64 +191,6 @@ int main() {
     istringstream lgfs(lgf[i]);
     graphReader(graph, lgfs).
       edgeMap("weight", weight).run();
-
-    //bool perfect_with_loops;
-    //{
-    //  MaxFractionalMatching<SmartGraph> mfm(graph, true);
-    //  mfm.run();
-    //  checkFractionalMatching(graph, mfm, true);
-    //  perfect_with_loops = mfm.matchingSize() == countNodes(graph);
-    //}
-
-    //bool perfect_without_loops;
-    //{
-    //  MaxFractionalMatching<SmartGraph> mfm(graph, false);
-    //  mfm.run();
-    //  checkFractionalMatching(graph, mfm, false);
-    //  perfect_without_loops = mfm.matchingSize() == countNodes(graph);
-    //}
-
-    //std::cerr << perfect_with_loops << " " << perfect_without_loops << std::endl;
-
-    //{
-    //  MaxFractionalMatching<SmartGraph> mfm(graph, true);
-    //  bool result = mfm.runPerfect();
-    //  checkPerfectFractionalMatching(graph, mfm, result, true);
-    //  check(result == perfect_with_loops, "Wrong perfect matching");
-    //}
-
-    //{
-    //  MaxFractionalMatching<SmartGraph> mfm(graph, false);
-    //  bool result = mfm.runPerfect();
-    //  checkPerfectFractionalMatching(graph, mfm, result, false);
-    //  check(result == perfect_without_loops, "Wrong perfect matching");
-    //}
-
-    //{
-    //  MaxWeightedFractionalMatching<SmartGraph> mwfm(graph, weight, true);
-    //  mwfm.run();
-    //  checkWeightedFractionalMatching(graph, weight, mwfm, true);
-    //}
-
-    //{
-    //  MaxWeightedFractionalMatching<SmartGraph> mwfm(graph, weight, false);
-    //  mwfm.run();
-    //  checkWeightedFractionalMatching(graph, weight, mwfm, false);
-    //}
-
- //   {
- //     MaxWeightedPerfectFractionalMatching<SmartGraph> mwpfm(graph, weight,
- //                                                            true);
- //     bool perfect = mwpfm.run();
- //     check(perfect == (mwpfm.matchingSize() == countNodes(graph)),
- //           "Perfect matching found");
- ////     check(perfect == perfect_with_loops, "Wrong perfect matching");
-
- //     if (perfect) {
- //       checkWeightedPerfectFractionalMatching(graph, weight, mwpfm, true);
- //     }
- //   }
-
     {
       MaxWeightedPerfectFractionalMatching<SmartGraph> mwpfm(graph, weight,
                                                              false);
