@@ -969,7 +969,7 @@ namespace lemon {
 
   private:
 
-    static const int cmax = 16;
+    static const int cmax = 3;
 
     ItemIntMap& index;
 
@@ -1354,17 +1354,20 @@ namespace lemon {
     /// \brief Joins the classes.
     ///
     /// The current function joins the given classes. The parameter is
-    /// an STL range which should be contains valid class ids. The
+    /// an STL range which should contain valid class ids. The
     /// time complexity is O(log(n)*k) where n is the overall number
     /// of the joined nodes and k is the number of classes.
     /// \return The class of the joined classes.
     /// \pre The range should contain at least two class ids.
     template <typename Iterator>
     int join(Iterator begin, Iterator end) {
+      std::cerr << "join" << std::endl;
       std::vector<int> cs;
       for (Iterator it = begin; it != end; ++it) {
+        std::cerr << "p";
         cs.push_back(*it);
       }
+      std::cerr << std::endl;
 
       int class_id = newClass();
       { // creation union-find
