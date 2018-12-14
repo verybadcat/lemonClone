@@ -212,8 +212,9 @@ namespace lemon {
 
         for (InArcIt a(_graph, node); a != INVALID; ++a) {
           Node v = _graph.source(a);
+          int weight = _weight[a];
           Value rw = (*_node_potential)[node] + (*_node_potential)[v] -
-            dualScale * _weight[a];
+            dualScale * weight;
           if (node == v) {
             if (_allow_loops && _graph.direction(a)) {
               _delta3->push(a, rw / 2);
@@ -567,6 +568,8 @@ namespace lemon {
 
         for (NodeIt n(_graph); n != INVALID; ++n) {
           Value max = -std::numeric_limits<Value>::max();
+    
+          // This calculates the initial node potentials
           for (OutArcIt e(_graph, n); e != INVALID; ++e) {
             if (_graph.target(e) == n && !_allow_loops) continue;
             if ((dualScale * _weight[e]) / 2 > max) {
@@ -585,9 +588,11 @@ namespace lemon {
           Node left = _graph.u(e);
           Node right = _graph.v(e);
           if (left == right && !_allow_loops) continue;
-          _delta3->push(e, ((*_node_potential)[left] +
+          int edgeDelta = ((*_node_potential)[left] +
             (*_node_potential)[right] -
-            dualScale * _weight[e]) / 2);
+            dualScale * _weight[e]) / 2;
+          std::cerr << "edgeDelta for edge with weight " << _weight[e] << " is " << edgeDelta << std::endl;
+          _delta3->push(e, edgeDelta);
         }
       }
 

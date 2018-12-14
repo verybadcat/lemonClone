@@ -689,7 +689,9 @@ namespace lemon {
     /// \brief Constructor
     ExtendFindEnum(ItemIntMap& _index)
       : index(_index), items(), firstFreeItem(-1),
-        classes(), firstClass(-1), firstFreeClass(-1) {}
+        classes(), firstClass(-1), firstFreeClass(-1) {
+    
+    }
 
     /// \brief Inserts the given element into a new component.
     ///
