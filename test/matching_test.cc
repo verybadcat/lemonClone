@@ -130,7 +130,7 @@ const std::string graph4 =
 
 const int lgfn = 3;
 const std::string lgf[lgfn] = {
-  graph4,
+  lgf0,
   lgf1,
   lgf2
 };

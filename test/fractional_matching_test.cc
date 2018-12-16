@@ -131,9 +131,9 @@ const std::string graph4 =
 ;
 
 const std::string lgf[lgfn] = {
-  graph4,
+  lgf2,
   lgf1,
-  lgf2
+  lgf0
 };
 
 void checkWeightedPerfectFractionalMatching(const SmartGraph& graph,

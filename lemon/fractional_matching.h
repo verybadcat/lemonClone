@@ -226,14 +226,14 @@ namespace lemon {
           }
           else if ((*_status)[v] == MATCHED) {
             if (_delta2->state(v) != _delta2->IN_HEAP) {
-              std::cerr << "setting pred " << v.Id() << " " << _graph.ArcTarget(a.Id()) << std::endl;
+ //             std::cerr << "setting pred " << v.Id() << " " << _graph.ArcTarget(a.Id()) << std::endl;
 
               _pred->set(v, a);
               std::cerr << "delta2 pushing " << v.Id() << rw;
               _delta2->push(v, rw);
             }
             else if ((*_delta2)[v] > rw) {
-              std::cerr << "setting pred " << v.Id() << " " << _graph.ArcTarget(a.Id()) << std::endl;
+  //            std::cerr << "setting pred " << v.Id() << " " << _graph.ArcTarget(a.Id()) << std::endl;
 
               _pred->set(v, a);
               std::cerr << "delta2 decreasing " << v.Id() << " " << rw << std::endl;
@@ -254,7 +254,7 @@ namespace lemon {
       }
 
       void evenToMatched(Node node, int tree) {
-        std::cerr << "etm " << node.Id() << " " << tree << std::endl;
+   //     std::cerr << "etm " << node.Id() << " " << tree << std::endl;
         _node_potential->set(node, (*_node_potential)[node] - _delta_sum);
         Arc min = INVALID;
         Value minrw = std::numeric_limits<Value>::max();
@@ -270,7 +270,7 @@ namespace lemon {
           }
           else if ((*_status)[v] == EVEN) {
             int weight = _weight[a];
-            std::cerr << "erasing arc "<< weight << std::endl;
+    //        std::cerr << "erasing arc "<< weight << std::endl;
             _delta3->erase(a);
             if (minrw > rw) {
               min = _graph.oppositeArc(a);
@@ -293,13 +293,13 @@ namespace lemon {
                 }
               }
               if (mina != INVALID) {
-                std::cerr << "setting pred " << v.Id() << " " << _graph.ArcTarget(mina.Id()) << std::endl;
+       //         std::cerr << "setting pred " << v.Id() << " " << _graph.ArcTarget(mina.Id()) << std::endl;
                 _pred->set(v, mina);
                 std::cerr << "delta2 increasing " << v.Id() << " " << minrwa << std::endl;
                 _delta2->increase(v, minrwa);
               }
               else {
-                std::cerr << "setting pred " << v.Id() << " " << "null" << std::endl;
+      //          std::cerr << "setting pred " << v.Id() << " " << "null" << std::endl;
                 _pred->set(v, INVALID);
                 std::cerr << "delta2 erasing " << v.Id() << std::endl;
                 _delta2->erase(v);
@@ -309,13 +309,13 @@ namespace lemon {
         }
         if (min != INVALID) {
           int minId = min.Id();
-          std::cerr << "setting pred " << node.Id() << " " << _graph.ArcTarget(minId) << std::endl;
+    //      std::cerr << "setting pred " << node.Id() << " " << _graph.ArcTarget(minId) << std::endl;
           _pred->set(node, min);
           std::cerr << "delta2 pushing " << node.Id() << " " << minrw << std::endl;
           _delta2->push(node, minrw);
         }
         else {
-          std::cerr << "setting pred " << node.Id() << " null" << std::endl;
+   //      std::cerr << "setting pred " << node.Id() << " null" << std::endl;
           _pred->set(node, INVALID);
         }
       }
@@ -336,13 +336,13 @@ namespace lemon {
           }
         }
         if (min != INVALID) {
-          std::cerr << "setting pred " << node.Id() << _graph.ArcTarget(min.Id()) << std::endl;
+     //     std::cerr << "setting pred " << node.Id() << _graph.ArcTarget(min.Id()) << std::endl;
           _pred->set(node, min);
           std::cerr << "delta2 pushing " << node.Id() << " " << minrw << std::endl;
           _delta2->push(node, minrw);
         }
         else {
-          std::cerr << "setting pred " << node.Id() << " null" << std::endl;
+  //        std::cerr << "setting pred " << node.Id() << " null" << std::endl;
 
           _pred->set(node, INVALID);
         }
@@ -391,27 +391,29 @@ namespace lemon {
 
         alternatePath(left, left_tree);
         destroyTree(left_tree);
-
-        std::cerr << "setting matching " << left.Id() << std::endl;
-        _matching->set(left, _graph.direct(edge, true));
+        Arc arc = _graph.direct(edge, true);
+        Node target = _graph.target(arc);
+        std::cerr << "setting matching " << left.Id() << " " << target.Id() << std::endl;
+        _matching->set(left, arc);
 
         Node right = _graph.v(edge);
         int right_tree = _tree_set->find(right);
 
         alternatePath(right, right_tree);
         destroyTree(right_tree);
-        std::cerr << "setting matching " << right.Id() << std::endl;
+        Arc rightTarget = _graph.direct(edge, false);
+        std::cerr << "setting matching " << right.Id() << " " << _graph.target(rightTarget).Id() << std::endl;
 
-        _matching->set(right, _graph.direct(edge, false));
+        _matching->set(right, rightTarget);
       }
 
       void augmentOnArc(const Arc& arc) {
         Node left = _graph.source(arc);
         _status->set(left, MATCHED);
-        std::cerr << "setting matching " << left.Id() << std::endl;
+        std::cerr << "setting matching " << left.Id() << " " << _graph.target(arc).Id() << std::endl;
 
         _matching->set(left, arc);
-        std::cerr << "setting pred " << left.Id() << " " << _graph.ArcTarget(arc.Id()) << std::endl;
+  //      std::cerr << "setting pred " << left.Id() << " " << _graph.ArcTarget(arc.Id()) << std::endl;
         _pred->set(left, arc);
 
         Node right = _graph.target(arc);
@@ -419,7 +421,7 @@ namespace lemon {
 
         alternatePath(right, right_tree);
         destroyTree(right_tree);
-        std::cerr << "setting matching " << right.Id() << std::endl;
+        std::cerr << "setting matching " << right.Id() << " " << _graph.source(arc).Id() << std::endl;
 
         _matching->set(right, _graph.oppositeArc(arc));
       }
@@ -434,7 +436,7 @@ namespace lemon {
         matchedToOdd(odd, tree);
 
         int arcId = arc.Id();
-        std::cerr << "setting pred " << odd.Id() << " " << _graph.ArcTarget(arcId) << std::endl;
+    //    std::cerr << "setting pred " << odd.Id() << " " << _graph.ArcTarget(arcId) << std::endl;
         _pred->set(odd, arc);
 
         Node even = _graph.target((*_matching)[odd]);
@@ -444,14 +446,14 @@ namespace lemon {
       }
 
       void cycleOnEdge(const Edge& edge, int tree) {
-        std::cerr << "cycleOnEdge" << " " << tree << std::endl;
+   //     std::cerr << "cycleOnEdge" << " " << tree << std::endl;
         Node nca = INVALID;
         std::vector<Node> left_path, right_path;
 
         {
           std::set<Node> left_set, right_set;
           Node left = _graph.u(edge);
-          std::cerr << "left path adding " << left.Id() << std::endl;
+      //    std::cerr << "left path adding " << left.Id() << std::endl;
           left_path.push_back(left);
           left_set.insert(left);
 
@@ -469,10 +471,10 @@ namespace lemon {
             if ((*_matching)[left] == INVALID) break;
 
             left = _graph.target((*_matching)[left]);
-            std::cerr << "left path adding " << left.Id() << std::endl;
+      //      std::cerr << "left path adding " << left.Id() << std::endl;
             left_path.push_back(left);
             left = _graph.target((*_pred)[left]);
-            std::cerr << "left path adding " << left.Id() << std::endl;
+       //     std::cerr << "left path adding " << left.Id() << std::endl;
             left_path.push_back(left);
 
             left_set.insert(left);
@@ -507,9 +509,9 @@ namespace lemon {
               nca = left;
               while (right_set.find(nca) == right_set.end()) {
                 nca = _graph.target((*_matching)[nca]);
-                std::cerr << "left path adding " << nca.Id() << std::endl;
+         //       std::cerr << "left path adding " << nca.Id() << std::endl;
                 left_path.push_back(nca);
-                std::cerr << "left path adding " << nca.Id() << std::endl;
+         //       std::cerr << "left path adding " << nca.Id() << std::endl;
                 nca = _graph.target((*_pred)[nca]);
                 left_path.push_back(nca);
               }
@@ -522,7 +524,7 @@ namespace lemon {
 
         prev = _graph.direct(edge, true);
         for (int i = 0; left_path[i] != nca; i += 2) {
-          std::cerr << "setting matching " << left_path[i].Id() << std::endl;
+          std::cerr << "setting matching " << left_path[i].Id() << " " << _graph.target(prev).Id() << std::endl;
 
           _matching->set(left_path[i], prev);
           _status->set(left_path[i], MATCHED);
@@ -532,14 +534,14 @@ namespace lemon {
           _status->set(left_path[i + 1], MATCHED);
           oddToMatched(left_path[i + 1]);
         }
-        std::cerr << "setting matching " << nca.Id() << std::endl;
+        std::cerr << "setting matching " << nca.Id() << " " << _graph.target(prev).Id() << std::endl;
 
         _matching->set(nca, prev);
 
         for (int i = 0; right_path[i] != nca; i += 2) {
           _status->set(right_path[i], MATCHED);
           evenToMatched(right_path[i], tree);
-          std::cerr << "setting matching " << right_path[i+1].Id() << std::endl;
+          std::cerr << "setting matching " << right_path[i+1].Id() << " " << (*_pred)[right_path[i + 1]].Id() << std::endl;
 
           _matching->set(right_path[i + 1], (*_pred)[right_path[i + 1]]);
           _status->set(right_path[i + 1], MATCHED);
@@ -557,11 +559,11 @@ namespace lemon {
           Node even = _graph.target((*_matching)[odd]);
           prev = (*_matching)[odd];
           odd = _graph.target((*_matching)[even]);
-          std::cerr << "setting matching " << even.Id() << std::endl;
+          std::cerr << "setting matching " << even.Id() << " " << _graph.source(prev).Id() << std::endl;
 
           _matching->set(even, _graph.oppositeArc(prev));
         }
-        std::cerr << "setting matching " << left.Id() << std::endl;
+        std::cerr << "setting matching " << left.Id() << " " << _graph.target(arc).Id() << std::endl;
 
         _matching->set(left, arc);
 
@@ -569,7 +571,7 @@ namespace lemon {
         int right_tree = _tree_set->find(right);
         alternatePath(right, right_tree);
         destroyTree(right_tree);
-        std::cerr << "setting matching " << right.Id() << std::endl;
+        std::cerr << "setting matching " << right.Id() << " " << _graph.source(arc).Id() << std::endl;
 
         _matching->set(right, _graph.oppositeArc(arc));
       }
@@ -606,7 +608,7 @@ namespace lemon {
       ///
       /// This function initializes the algorithm.
       void init() {
-        std::cerr << "MaxWeightedPerfectFractionalMatching init" << std::endl;
+     //   std::cerr << "MaxWeightedPerfectFractionalMatching init" << std::endl;
         createStructures();
 
         for (NodeIt n(_graph); n != INVALID; ++n) {
@@ -647,7 +649,7 @@ namespace lemon {
             (*_node_potential)[right] -
             dualScale * _weight[e]) / 2;
           int weight = _weight[e];
-          std::cerr << "edgeDelta for edge with weight " << weight << " is " << edgeDelta << std::endl;
+   //       std::cerr << "edgeDelta for edge with weight " << weight << " is " << edgeDelta << std::endl;
           _delta3->push(e, edgeDelta);
         }
       }
@@ -671,7 +673,7 @@ namespace lemon {
             _delta3->prio() : std::numeric_limits<Value>::max();
 
           _delta_sum = d3; OpType ot = D3;
-          std::cerr << "d2 " << d2 << " d3 " << d3 << "\n";
+    //      std::cerr << "d2 " << d2 << " d3 " << d3 << "\n";
           if (d2 < _delta_sum) { _delta_sum = d2; ot = D2; }
 
           if (_delta_sum == std::numeric_limits<Value>::max()) {
@@ -704,7 +706,7 @@ namespace lemon {
           } break;
           case D3:
           {
-            std::cerr << "D3" << std::endl;
+     //       std::cerr << "D3" << std::endl;
             Edge e = _delta3->top();
 
             Node left = _graph.u(e);
@@ -713,7 +715,7 @@ namespace lemon {
             int left_tree = _tree_set->find(left);
             int right_tree = _tree_set->find(right);
 
-            std::cerr << left.Id() << " " << left_tree << " " << right.Id() << " " << right_tree << "\n";
+      //      std::cerr << left.Id() << " " << left_tree << " " << right.Id() << " " << right_tree << "\n";
 
             if (left_tree == right_tree) {
               cycleOnEdge(e, left_tree);
