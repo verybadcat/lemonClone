@@ -749,7 +749,8 @@ namespace lemon {
     ///
     /// Gives back the class of the \e item.
     int find(const Item &item) const {
-      return items[index[item]].cls;
+      int itemIndex = index[item];
+      return items[itemIndex].cls;
     }
 
     /// \brief Gives back a representant item of the component.
@@ -1310,7 +1311,7 @@ namespace lemon {
     int insert(const Item& item, const Value& prio) {
 
       int id = newNode();
-      std::cerr << "  insert " << id << " " << prio << std::endl;
+      std::cerr << " insert " << id << " " << prio << std::endl;
       nodes[id].item = item;
       nodes[id].prio = prio;
       nodes[id].size = 0;

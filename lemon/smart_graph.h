@@ -142,6 +142,9 @@ namespace lemon {
       bool operator==(const Arc i) const {return _id == i._id;}
       bool operator!=(const Arc i) const {return _id != i._id;}
       bool operator<(const Arc i) const {return _id < i._id;}
+      int Id() const {
+        return _id;
+      }
     };
 
     void first(Node& node) const {
@@ -421,6 +424,9 @@ namespace lemon {
       explicit Node(int id) { _id = id;}
 
     public:
+      int Id() const {
+        return _id;
+      }
       Node() {}
       Node (Invalid) { _id = -1; }
       bool operator==(const Node& node) const {return _id == node._id;}
@@ -454,7 +460,9 @@ namespace lemon {
       operator Edge() const {
         return _id != -1 ? edgeFromId(_id / 2) : INVALID;
       }
-
+      int Id() const {
+        return _id;
+      }
       Arc() {}
       Arc (Invalid) { _id = -1; }
       bool operator==(const Arc& arc) const {return _id == arc._id;}
@@ -580,6 +588,10 @@ namespace lemon {
       return Node(n);
     }
 
+    int ArcTarget(int id) const {
+      return _arcs[id].target;
+    }
+
     Edge addEdge(Node u, Node v) {
       int n = _arcs.size();
       _arcs.push_back(ArcT());
@@ -692,6 +704,7 @@ namespace lemon {
     void clear() {
       Parent::clear();
     }
+
 
     /// Reserve memory for nodes.
 
@@ -904,6 +917,7 @@ namespace lemon {
       operator Edge() const {
         return _id != -1 ? edgeFromId(_id / 2) : INVALID;
       }
+
 
       Arc() {}
       Arc (Invalid) { _id = -1; }

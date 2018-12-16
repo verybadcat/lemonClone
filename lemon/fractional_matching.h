@@ -207,6 +207,7 @@ namespace lemon {
         _node_potential->set(node, (*_node_potential)[node] + _delta_sum);
 
         if (_delta2->state(node) == _delta2->IN_HEAP) {
+          std::cerr << "delta2 erasing " << node.Id() << std::endl;
           _delta2->erase(node);
         }
 
@@ -225,11 +226,17 @@ namespace lemon {
           }
           else if ((*_status)[v] == MATCHED) {
             if (_delta2->state(v) != _delta2->IN_HEAP) {
+              std::cerr << "setting pred " << v.Id() << " " << _graph.ArcTarget(a.Id()) << std::endl;
+
               _pred->set(v, a);
+              std::cerr << "delta2 pushing " << v.Id() << rw;
               _delta2->push(v, rw);
             }
             else if ((*_delta2)[v] > rw) {
+              std::cerr << "setting pred " << v.Id() << " " << _graph.ArcTarget(a.Id()) << std::endl;
+
               _pred->set(v, a);
+              std::cerr << "delta2 decreasing " << v.Id() << " " << rw << std::endl;
               _delta2->decrease(v, rw);
             }
           }
@@ -241,11 +248,13 @@ namespace lemon {
         _node_potential->set(node, (*_node_potential)[node] - _delta_sum);
 
         if (_delta2->state(node) == _delta2->IN_HEAP) {
+          std::cerr << "delta2 erasing " << node.Id() << std::endl;
           _delta2->erase(node);
         }
       }
 
       void evenToMatched(Node node, int tree) {
+        std::cerr << "etm " << node.Id() << " " << tree << std::endl;
         _node_potential->set(node, (*_node_potential)[node] - _delta_sum);
         Arc min = INVALID;
         Value minrw = std::numeric_limits<Value>::max();
@@ -260,6 +269,8 @@ namespace lemon {
             }
           }
           else if ((*_status)[v] == EVEN) {
+            int weight = _weight[a];
+            std::cerr << "erasing arc "<< weight << std::endl;
             _delta3->erase(a);
             if (minrw > rw) {
               min = _graph.oppositeArc(a);
@@ -282,21 +293,29 @@ namespace lemon {
                 }
               }
               if (mina != INVALID) {
+                std::cerr << "setting pred " << v.Id() << " " << _graph.ArcTarget(mina.Id()) << std::endl;
                 _pred->set(v, mina);
+                std::cerr << "delta2 increasing " << v.Id() << " " << minrwa << std::endl;
                 _delta2->increase(v, minrwa);
               }
               else {
+                std::cerr << "setting pred " << v.Id() << " " << "null" << std::endl;
                 _pred->set(v, INVALID);
+                std::cerr << "delta2 erasing " << v.Id() << std::endl;
                 _delta2->erase(v);
               }
             }
           }
         }
         if (min != INVALID) {
+          int minId = min.Id();
+          std::cerr << "setting pred " << node.Id() << " " << _graph.ArcTarget(minId) << std::endl;
           _pred->set(node, min);
+          std::cerr << "delta2 pushing " << node.Id() << " " << minrw << std::endl;
           _delta2->push(node, minrw);
         }
         else {
+          std::cerr << "setting pred " << node.Id() << " null" << std::endl;
           _pred->set(node, INVALID);
         }
       }
@@ -317,10 +336,14 @@ namespace lemon {
           }
         }
         if (min != INVALID) {
+          std::cerr << "setting pred " << node.Id() << _graph.ArcTarget(min.Id()) << std::endl;
           _pred->set(node, min);
+          std::cerr << "delta2 pushing " << node.Id() << " " << minrw << std::endl;
           _delta2->push(node, minrw);
         }
         else {
+          std::cerr << "setting pred " << node.Id() << " null" << std::endl;
+
           _pred->set(node, INVALID);
         }
       }
@@ -335,12 +358,14 @@ namespace lemon {
         while (prev != INVALID) {
           odd = _graph.target(prev);
           even = _graph.target((*_pred)[odd]);
+          std::cerr << "setting matching " << odd.Id() << " " << even.Id() << std::endl;
           _matching->set(odd, (*_pred)[odd]);
           _status->set(odd, MATCHED);
           oddToMatched(odd);
 
           prev = (*_matching)[even];
           _status->set(even, MATCHED);
+          std::cerr << "setting matching " << even.Id() << " " << odd.Id() << std::endl;
           _matching->set(even, _graph.oppositeArc((*_matching)[odd]));
           evenToMatched(even, tree);
         }
@@ -366,6 +391,8 @@ namespace lemon {
 
         alternatePath(left, left_tree);
         destroyTree(left_tree);
+
+        std::cerr << "setting matching " << left.Id() << std::endl;
         _matching->set(left, _graph.direct(edge, true));
 
         Node right = _graph.v(edge);
@@ -373,13 +400,18 @@ namespace lemon {
 
         alternatePath(right, right_tree);
         destroyTree(right_tree);
+        std::cerr << "setting matching " << right.Id() << std::endl;
+
         _matching->set(right, _graph.direct(edge, false));
       }
 
       void augmentOnArc(const Arc& arc) {
         Node left = _graph.source(arc);
         _status->set(left, MATCHED);
+        std::cerr << "setting matching " << left.Id() << std::endl;
+
         _matching->set(left, arc);
+        std::cerr << "setting pred " << left.Id() << " " << _graph.ArcTarget(arc.Id()) << std::endl;
         _pred->set(left, arc);
 
         Node right = _graph.target(arc);
@@ -387,6 +419,8 @@ namespace lemon {
 
         alternatePath(right, right_tree);
         destroyTree(right_tree);
+        std::cerr << "setting matching " << right.Id() << std::endl;
+
         _matching->set(right, _graph.oppositeArc(arc));
       }
 
@@ -398,6 +432,9 @@ namespace lemon {
         _tree_set->insert(odd, tree);
         _status->set(odd, ODD);
         matchedToOdd(odd, tree);
+
+        int arcId = arc.Id();
+        std::cerr << "setting pred " << odd.Id() << " " << _graph.ArcTarget(arcId) << std::endl;
         _pred->set(odd, arc);
 
         Node even = _graph.target((*_matching)[odd]);
@@ -407,12 +444,14 @@ namespace lemon {
       }
 
       void cycleOnEdge(const Edge& edge, int tree) {
+        std::cerr << "cycleOnEdge" << " " << tree << std::endl;
         Node nca = INVALID;
         std::vector<Node> left_path, right_path;
 
         {
           std::set<Node> left_set, right_set;
           Node left = _graph.u(edge);
+          std::cerr << "left path adding " << left.Id() << std::endl;
           left_path.push_back(left);
           left_set.insert(left);
 
@@ -430,8 +469,10 @@ namespace lemon {
             if ((*_matching)[left] == INVALID) break;
 
             left = _graph.target((*_matching)[left]);
+            std::cerr << "left path adding " << left.Id() << std::endl;
             left_path.push_back(left);
             left = _graph.target((*_pred)[left]);
+            std::cerr << "left path adding " << left.Id() << std::endl;
             left_path.push_back(left);
 
             left_set.insert(left);
@@ -466,7 +507,9 @@ namespace lemon {
               nca = left;
               while (right_set.find(nca) == right_set.end()) {
                 nca = _graph.target((*_matching)[nca]);
+                std::cerr << "left path adding " << nca.Id() << std::endl;
                 left_path.push_back(nca);
+                std::cerr << "left path adding " << nca.Id() << std::endl;
                 nca = _graph.target((*_pred)[nca]);
                 left_path.push_back(nca);
               }
@@ -479,19 +522,24 @@ namespace lemon {
 
         prev = _graph.direct(edge, true);
         for (int i = 0; left_path[i] != nca; i += 2) {
+          std::cerr << "setting matching " << left_path[i].Id() << std::endl;
+
           _matching->set(left_path[i], prev);
           _status->set(left_path[i], MATCHED);
           evenToMatched(left_path[i], tree);
-
-          prev = _graph.oppositeArc((*_pred)[left_path[i + 1]]);
+          Node vert = left_path[i + 1];
+          prev = _graph.oppositeArc((*_pred)[vert]);
           _status->set(left_path[i + 1], MATCHED);
           oddToMatched(left_path[i + 1]);
         }
+        std::cerr << "setting matching " << nca.Id() << std::endl;
+
         _matching->set(nca, prev);
 
         for (int i = 0; right_path[i] != nca; i += 2) {
           _status->set(right_path[i], MATCHED);
           evenToMatched(right_path[i], tree);
+          std::cerr << "setting matching " << right_path[i+1].Id() << std::endl;
 
           _matching->set(right_path[i + 1], (*_pred)[right_path[i + 1]]);
           _status->set(right_path[i + 1], MATCHED);
@@ -509,14 +557,20 @@ namespace lemon {
           Node even = _graph.target((*_matching)[odd]);
           prev = (*_matching)[odd];
           odd = _graph.target((*_matching)[even]);
+          std::cerr << "setting matching " << even.Id() << std::endl;
+
           _matching->set(even, _graph.oppositeArc(prev));
         }
+        std::cerr << "setting matching " << left.Id() << std::endl;
+
         _matching->set(left, arc);
 
         Node right = _graph.target(arc);
         int right_tree = _tree_set->find(right);
         alternatePath(right, right_tree);
         destroyTree(right_tree);
+        std::cerr << "setting matching " << right.Id() << std::endl;
+
         _matching->set(right, _graph.oppositeArc(arc));
       }
 
@@ -579,8 +633,9 @@ namespace lemon {
           _node_potential->set(n, max);
 
           _tree_set->insert(n);
-
+          
           _matching->set(n, INVALID);
+          Arc foo = (*_matching)[n];
           _status->set(n, EVEN);
         }
 
@@ -591,7 +646,8 @@ namespace lemon {
           int edgeDelta = ((*_node_potential)[left] +
             (*_node_potential)[right] -
             dualScale * _weight[e]) / 2;
-          std::cerr << "edgeDelta for edge with weight " << _weight[e] << " is " << edgeDelta << std::endl;
+          int weight = _weight[e];
+          std::cerr << "edgeDelta for edge with weight " << weight << " is " << edgeDelta << std::endl;
           _delta3->push(e, edgeDelta);
         }
       }
@@ -615,6 +671,7 @@ namespace lemon {
             _delta3->prio() : std::numeric_limits<Value>::max();
 
           _delta_sum = d3; OpType ot = D3;
+          std::cerr << "d2 " << d2 << " d3 " << d3 << "\n";
           if (d2 < _delta_sum) { _delta_sum = d2; ot = D2; }
 
           if (_delta_sum == std::numeric_limits<Value>::max()) {
@@ -632,9 +689,11 @@ namespace lemon {
               --unmatched;
             }
             else {
-              Node v = _graph.target((*_matching)[n]);
-              if ((*_matching)[n] !=
-                _graph.oppositeArc((*_matching)[v])) {
+              Arc nArc = (*_matching)[n];
+              Node v = _graph.target(nArc);
+              Arc matchV = (*_matching)[v];
+              if (nArc !=
+                _graph.oppositeArc(matchV)) {
                 extractCycle(a);
                 --unmatched;
               }
@@ -653,6 +712,8 @@ namespace lemon {
 
             int left_tree = _tree_set->find(left);
             int right_tree = _tree_set->find(right);
+
+            std::cerr << left.Id() << " " << left_tree << " " << right.Id() << " " << right_tree << "\n";
 
             if (left_tree == right_tree) {
               cycleOnEdge(e, left_tree);

@@ -38,87 +38,103 @@ GRAPH_TYPEDEFS(SmartGraph);
 
 
 const int lgfn = 4;
+const std::string lgf0 =
+"@nodes\n"
+"label\n"
+"0\n"
+"1\n"
+"2\n"
+"3\n"
+"4\n"
+"5\n"
+"6\n"
+"7\n"
+"@edges\n"
+"     label  weight\n"
+"7 4  0      984\n"
+"0 7  1      73\n"
+"7 1  2      204\n"
+"2 3  3      583\n"
+"2 7  4      565\n"
+"2 1  5      582\n"
+"0 4  6      551\n"
+"2 5  7      385\n"
+"1 5  8      561\n"
+"5 3  9      484\n"
+"7 5  10     904\n"
+"3 6  11     47\n"
+"7 6  12     888\n"
+"3 0  13     747\n"
+"6 1  14     310\n";
+
+
+const std::string lgf1 =
+"@nodes\n"
+"label\n"
+"0\n"
+"1\n"
+"2\n"
+"3\n"
+"4\n"
+"5\n"
+"6\n"
+"7\n"
+"@edges\n"
+"     label  weight\n"
+"2 5  0      710\n"
+"0 5  1      241\n"
+"2 4  2      856\n"
+"2 6  3      762\n"
+"4 1  4      747\n"
+"6 1  5      962\n"
+"4 7  6      723\n"
+"1 7  7      661\n"
+"2 3  8      376\n"
+"1 0  9      416\n"
+"6 7  10     391\n";
+
+const std::string lgf2 =
+"@nodes\n"
+"label\n"
+"0\n"
+"1\n"
+"2\n"
+"3\n"
+"4\n"
+"5\n"
+"6\n"
+"7\n"
+"@edges\n"
+"     label  weight\n"
+"6 2  0      553\n"
+"0 7  1      653\n"
+"6 3  2      22\n"
+"4 7  3      846\n"
+"7 2  4      981\n"
+"7 6  5      250\n"
+"5 2  6      539\n";
+
+const std::string graph4 =
+"@nodes\n"
+"label\n"
+"0\n"
+"1\n"
+"2\n"
+"3\n"
+"@edges\n"
+"     label  weight\n"
+"0 1  0      10\n"
+"1 2  1      20\n"
+"2 3  2      30\n"
+"3 0  3      40\n"
+"0 2  4      50\n"
+;
+
 const std::string lgf[lgfn] = {
-  "@nodes\n"
-  "label\n"
-  "0\n"
-  "1\n"
-  "2\n"
-  "3\n"
-  "4\n"
-  "5\n"
-  "6\n"
-  "7\n"
-  "@edges\n"
-  "     label  weight\n"
-  "7 4  0      984\n"
-  "0 7  1      73\n"
-  "7 1  2      204\n"
-  "2 3  3      583\n"
-  "2 7  4      565\n"
-  "2 1  5      582\n"
-  "0 4  6      551\n"
-  "2 5  7      385\n"
-  "1 5  8      561\n"
-  "5 3  9      484\n"
-  "7 5  10     904\n"
-  "3 6  11     47\n"
-  "7 6  12     888\n"
-  "3 0  13     747\n"
-  "6 1  14     310\n",
-
-  "@nodes\n"
-  "label\n"
-  "0\n"
-  "1\n"
-  "2\n"
-  "3\n"
-  "4\n"
-  "5\n"
-  "6\n"
-  "7\n"
-  "@edges\n"
-  "     label  weight\n"
-  "2 5  0      710\n"
-  "0 5  1      241\n"
-  "2 4  2      856\n"
-  "2 6  3      762\n"
-  "4 1  4      747\n"
-  "6 1  5      962\n"
-  "4 7  6      723\n"
-  "1 7  7      661\n"
-  "2 3  8      376\n"
-  "1 0  9      416\n"
-  "6 7  10     391\n",
-
-  "@nodes\n"
-  "label\n"
-  "0\n"
-  "1\n"
-  "2\n"
-  "3\n"
-  "4\n"
-  "5\n"
-  "6\n"
-  "7\n"
-  "@edges\n"
-  "     label  weight\n"
-  "6 2  0      553\n"
-  "0 7  1      653\n"
-  "6 3  2      22\n"
-  "4 7  3      846\n"
-  "7 2  4      981\n"
-  "7 6  5      250\n"
-  "5 2  6      539\n",
-
-  "@nodes\n"
-  "label\n"
-  "0\n"
-  "@edges\n"
-  "     label  weight\n"
-  "0 0  0      100\n"
+  graph4,
+  lgf1,
+  lgf2
 };
-
 
 void checkWeightedPerfectFractionalMatching(const SmartGraph& graph,
                 const SmartGraph::EdgeMap<int>& weight,
@@ -184,7 +200,7 @@ void checkWeightedPerfectFractionalMatching(const SmartGraph& graph,
 
 int main() {
 
-  for (int i = 0; i < lgfn; ++i) {
+  for (int i = 0; i < 1; ++i) {
     SmartGraph graph;
     SmartGraph::EdgeMap<int> weight(graph);
 

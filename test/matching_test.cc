@@ -216,16 +216,16 @@ int main() {
       }
     }
 
-    {
-      MaxWeightedPerfectMatching<SmartGraph> mwpm(graph, weight);
-      mwpm.init();
-      bool result = mwpm.start();
+    //{
+    //  MaxWeightedPerfectMatching<SmartGraph> mwpm(graph, weight);
+    //  mwpm.init();
+    //  bool result = mwpm.start();
 
-      check(result == perfect, "Perfect matching found");
-      if (perfect) {
-        checkWeightedPerfectMatching(graph, weight, mwpm);
-      }
-    }
+    //  check(result == perfect, "Perfect matching found");
+    //  if (perfect) {
+    //    checkWeightedPerfectMatching(graph, weight, mwpm);
+    //  }
+    //}
   }
 
   return 0;
