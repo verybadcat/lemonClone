@@ -196,7 +196,7 @@ void checkWeightedPerfectMatching(const SmartGraph& graph,
 
 int main() {
 
-  for (int i = 0; i < 1; ++i) {
+  for (int i = 0; i < 3; ++i) {
     SmartGraph graph;
     SmartGraph::EdgeMap<int> weight(graph);
 
@@ -216,16 +216,16 @@ int main() {
       }
     }
 
-    //{
-    //  MaxWeightedPerfectMatching<SmartGraph> mwpm(graph, weight);
-    //  mwpm.init();
-    //  bool result = mwpm.start();
+    {
+      MaxWeightedPerfectMatching<SmartGraph> mwpm(graph, weight);
+      mwpm.init();
+      bool result = mwpm.start();
 
-    //  check(result == perfect, "Perfect matching found");
-    //  if (perfect) {
-    //    checkWeightedPerfectMatching(graph, weight, mwpm);
-    //  }
-    //}
+      check(result == perfect, "Perfect matching found");
+      if (perfect) {
+        checkWeightedPerfectMatching(graph, weight, mwpm);
+      }
+    }
   }
 
   return 0;
